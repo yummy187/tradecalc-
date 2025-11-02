@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradeCalc - คำนวณพอร์ตเทรด</title>
+<style>
+  body {
+    font-family: "Prompt", sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    transition: 0.3s;
+  }
+
+  :root {
+    --bg: #ffffff;
+    --text: #222;
+    --card: #f6f6f6;
+    --accent: #007aff;
+  }
+
+  body.dark {
+    --bg: #121212;
+    --text: #f6f6f6;
+    --card: #1e1e1e;
+    --accent: #4da3ff;
+  }
+
+  .card {
+    background: var(--card);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 320px;
+    text-align: center;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    background: #eaeaea;
+    font-size: 16px;
+  }
+
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+
+  .result {
+    margin-top: 15px;
+    text-align: left;
+  }
+
+  .toggle {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <button class="toggle" onclick="toggleMode()">🌙</button>
+  <div class="card">
+    <h2>💹 TradeCalc</h2>
+    <p>เครื่องคำนวณพอร์ตเทรด</p>
+
+    <input type="number" id="capital" placeholder="ทุนเริ่มต้น (USD)">
+    <input type="number" id="risk" placeholder="ความเสี่ยง (%)">
+    <input type="number" id="sl" placeholder="จำนวน SL (pips)">
+
+    <button onclick="calculate()">คำนวณ</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+<script>
+function calculate() {
+  let capital = parseFloat(document.getElementById("capital").value);
+  let risk = parseFloat(document.getElementById("risk").value);
+  let sl = parseFloat(document.getElementById("sl").value);
+
+  if (!capital || !risk || !sl) {
+    document.getElementById("result").innerHTML = "⚠️ กรุณากรอกข้อมูลให้ครบ";
+    return;
+  }
+
+  let riskAmount = (capital * risk) / 100;
+  let lot = riskAmount / sl;
+  let newCapital = capital - riskAmount + (riskAmount * 2); // สมมติ RR = 1:2
+
+  document.getElementById("result").innerHTML = `
+    💰 เสี่ยงครั้งนี้: ${riskAmount.toFixed(2)} USD<br>
+    📈 ล็อตที่ควรออก: ${lot.toFixed(3)} lot<br>
+    💹 ทุนหลังเทรด (ถ้าชนะ): ${newCapital.toFixed(2)} USD
+  `;
+
+  localStorage.setItem("capital", capital);
+  localStorage.setItem("risk", risk);
+  localStorage.setItem("sl", sl);
+}
+
+function toggleMode() {
+  document.body.classList.toggle("dark");
+}
+
+window.onload = function() {
+  if (localStorage.getItem("capital")) {
+    document.getElementById("capital").value = localStorage.getItem("capital");
+    document.getElementById("risk").value = localStorage.getItem("risk");
+    document.getElementById("sl").value = localStorage.getItem("sl");
+  }
+};
+</script>
+</body>
+</html>
